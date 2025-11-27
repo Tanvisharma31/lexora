@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Copy, Share2, Check, Clock, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { SearchResponse } from "@/lib/mock-data"
+import type { SearchResponse } from "@/lib/types"
 import { toast } from "sonner"
 
 interface AnswerCardProps {

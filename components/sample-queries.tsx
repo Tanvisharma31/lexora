@@ -1,7 +1,7 @@
 "use client"
 
 import { MessageSquare } from "lucide-react"
-import { sampleQueries } from "@/lib/mock-data"
+import { sampleQueries } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 interface SampleQueriesProps {

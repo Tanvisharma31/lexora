@@ -3,7 +3,7 @@
 import { Download, ExternalLink, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { SearchSource } from "@/lib/mock-data"
+import type { SearchSource } from "@/lib/types"
 
 interface DocumentListProps {
   sources: SearchSource[]
