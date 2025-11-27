@@ -22,7 +22,11 @@ export function DocumentList({ sources, className }: DocumentListProps) {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
         {sources.map((source, index) => (
-          <DocumentCard key={source.act_id} source={source} rank={index + 1} />
+          <DocumentCard 
+            key={`${source.act_id}-${source.title}-${index}`} 
+            source={source} 
+            rank={index + 1} 
+          />
         ))}
       </div>
     </div>

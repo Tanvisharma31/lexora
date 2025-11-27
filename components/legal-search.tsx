@@ -15,7 +15,8 @@ import { SearchFooter } from "./search-footer"
 import { getRateLimiter } from "@/lib/rate-limiter"
 import type { SearchResponse } from "@/lib/mock-data"
 import { Button } from "@/components/ui/button"
-import { Scale, Sparkles, ArrowRight } from "lucide-react"
+import { Scale, Sparkles, ArrowRight, LogIn } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const quickSuggestions = ["RTI process", "Property laws", "Consumer rights", "Labour laws"]
 
@@ -230,18 +231,25 @@ export function LegalSearch() {
                   <Button
                     size="lg"
                     onClick={() => router.push("/sign-up")}
-                    className="liquid-glow text-lg px-8 py-6 h-auto"
+                    className="liquid-glow text-lg px-8 py-6 h-auto font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group relative overflow-hidden"
                   >
-                    Start Searching Free
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <span className="flex items-center gap-2 relative z-10">
+                      Start Searching Free
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-accent/10 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="lg"
                     onClick={() => router.push("/sign-in")}
-                    className="liquid-subtle text-lg px-8 py-6 h-auto"
-                  >
-                    Sign In
+                    className="liquid-subtle text-lg px-8 py-6 h-auto font-medium border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:shadow-lg transition-all duration-300 group backdrop-blur-sm relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                    <span className="flex items-center gap-2 relative z-10">
+                      Sign In
+                      <LogIn className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </Button>
                 </div>
               </div>
