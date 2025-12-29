@@ -14,13 +14,15 @@ export function DocumentList({ sources, className }: DocumentListProps) {
   if (!sources.length) return null
 
   return (
-    <div className={cn("space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150", className)}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">Top Documents</h3>
-        <span className="text-sm text-muted-foreground">{sources.length} results</span>
+    <div className={cn("space-y-6 animate-fade-in-up stagger-1", className)}>
+      <div className="flex items-center justify-between pb-2">
+        <h3 className="text-xl font-semibold text-white">Top Documents</h3>
+        <span className="text-sm text-white/60 font-medium px-3 py-1 rounded-full bg-white/5 border border-white/10">
+          {sources.length} {sources.length === 1 ? 'result' : 'results'}
+        </span>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
         {sources.map((source, index) => (
           <DocumentCard 
             key={`${source.act_id}-${source.title}-${index}`} 
@@ -42,34 +44,37 @@ function DocumentCard({ source, rank }: DocumentCardProps) {
   const scorePercentage = Math.round(source.score * 100)
 
   return (
-    <article className={cn("liquid-subtle rounded-xl p-4 transition-all liquid-hover", "hover:bg-primary/5 hover:border-primary/20")}>
+    <article className={cn(
+      "liquid-subtle rounded-xl p-5 transition-all liquid-hover group",
+      "hover:border-white/20 hover:shadow-lg hover:shadow-white/5"
+    )}>
       <div className="flex gap-4">
         {/* Rank indicator */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20">
-          <span className="text-sm font-bold text-accent">#{rank}</span>
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 border border-white/20 shadow-lg shadow-white/5 group-hover:bg-white/15 group-hover:scale-110 transition-all">
+          <span className="text-sm font-bold text-white">#{rank}</span>
         </div>
 
         <div className="flex-1 min-w-0">
           {/* Title row */}
-          <div className="flex items-start justify-between gap-2">
-            <h4 className="font-medium text-foreground line-clamp-1">{source.title}</h4>
-            <div className="flex items-center gap-1 shrink-0">
-              <Star className="h-3 w-3 text-accent" />
-              <span className="text-xs font-medium text-accent">{scorePercentage}%</span>
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h4 className="font-semibold text-white line-clamp-2 group-hover:text-white transition-colors">
+              {source.title}
+            </h4>
+            <div className="flex items-center gap-1.5 shrink-0 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+              <Star className="h-3.5 w-3.5 text-white fill-white/20" />
+              <span className="text-xs font-bold text-white">{scorePercentage}%</span>
             </div>
           </div>
 
           {/* Metadata */}
-          <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-mono">{source.act_id}</span>
+          <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
+            <span className="font-mono px-2 py-1 rounded bg-white/5 border border-white/10">{source.act_id}</span>
             <span>•</span>
             <span>{source.year}</span>
           </div>
 
           {/* Preview */}
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{source.preview}</p>
-
-          
+          <p className="text-sm text-white/70 line-clamp-2 leading-relaxed">{source.preview}</p>
         </div>
       </div>
     </article>

@@ -9,17 +9,19 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" })
 
-// <CHANGE> Comprehensive SEO metadata for legal search app
+// <CHANGE> Comprehensive SEO metadata for Nyayik - India's Best AI Legal Tech Platform
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lexora-llm.vercel.app"),
+  metadataBase: new URL("https://nyvixa.vercel.app"),
   title: {
-    default: "LegalAI Search - AI-Powered Legal Document Search Engine",
-    template: "%s | LegalAI Search",
+    default: "Nyayik - India's Best AI Legal Tech Platform",
+    template: "%s | Nyayik",
   },
-  description: "Search through Indian laws, acts, and legal precedents with AI-powered answers. Get instant legal information with citations from High Court judgements, Central Code, and State Acts.",
+  description: "Nyayik - India's premier AI-powered legal technology platform. Search laws, analyze documents, draft contracts, practice in moot court, and get AI-powered legal assistance. Early access with free trials available.",
   keywords: [
-    "legal search",
-    "AI legal assistant",
+    "Nyayik",
+    "AI legal tech",
+    "India legal platform",
+    "legal AI assistant",
     "Indian laws",
     "legal documents",
     "acts and regulations",
@@ -27,16 +29,22 @@ export const metadata: Metadata = {
     "High Court judgements",
     "Central Code",
     "State Acts",
-    "legal AI",
     "legal research",
     "Indian legal system",
     "law search engine",
     "legal information",
     "AI-powered legal search",
+    "legal tech India",
+    "best legal AI platform",
+    "lawyer AI tools",
+    "judge AI assistant",
+    "legal document analysis",
+    "contract review AI",
+    "moot court simulator",
   ],
-  authors: [{ name: "LegalAI Search" }],
-  creator: "LegalAI Search",
-  publisher: "LegalAI Search",
+  authors: [{ name: "Nyayik" }],
+  creator: "Nyayik",
+  publisher: "Nyayik",
   formatDetection: {
     email: false,
     address: false,
@@ -82,24 +90,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: "/",
-    siteName: "LegalAI Search",
-    title: "LegalAI Search - AI-Powered Legal Document Search Engine",
-    description: "Search through Indian laws, acts, and legal precedents with AI-powered answers. Get instant legal information with citations.",
+    siteName: "Nyayik",
+    title: "Nyayik - India's Best AI Legal Tech Platform",
+    description: "India's premier AI-powered legal technology platform. Search laws, analyze documents, draft contracts, and get AI-powered legal assistance. Early access available.",
     images: [
       {
         url: "/android-chrome-512x512.png",
         width: 512,
         height: 512,
-        alt: "LegalAI Search Logo",
+        alt: "Nyayik Logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LegalAI Search - AI-Powered Legal Document Search Engine",
-    description: "Search through Indian laws, acts, and legal precedents with AI-powered answers. Get instant legal information with citations.",
+    title: "Nyayik - India's Best AI Legal Tech Platform",
+    description: "India's premier AI-powered legal technology platform. Search laws, analyze documents, draft contracts, and get AI-powered legal assistance.",
     images: ["/android-chrome-512x512.png"],
-    creator: "@legalaisearch",
+    creator: "@nyayik",
   },
   robots: {
     index: true,
@@ -133,7 +141,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0b3d91",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
 }
@@ -147,14 +155,14 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "LegalAI Search",
+    name: "Nyayik",
     applicationCategory: "LegalApplication",
     operatingSystem: "Web",
-    description: "AI-powered legal document search engine for Indian laws, acts, and legal precedents",
-    url: "https://lexora-llm.vercel.app",
+    description: "India's premier AI-powered legal technology platform for lawyers, judges, and legal professionals",
+    url: "https://nyvixa.vercel.app",
     author: {
       "@type": "Organization",
-      name: "LegalAI Search",
+      name: "Nyayik",
     },
     offers: {
       "@type": "Offer",
@@ -168,11 +176,13 @@ export default function RootLayout({
     },
     featureList: [
       "AI-powered legal search",
-      "High Court judgements search",
-      "Central Code search",
-      "State Acts search",
-      "Legal document citations",
-      "Instant legal answers",
+      "Document analysis and review",
+      "Contract drafting",
+      "Moot court simulator",
+      "PDF translation",
+      "Legal reasoning assistant",
+      "Case management",
+      "Compliance checking",
     ],
   }
 

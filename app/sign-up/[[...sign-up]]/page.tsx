@@ -1,6 +1,30 @@
+"use client"
+
 import { SignUp } from "@clerk/nextjs"
+import { useEffect, useState } from "react"
 
 export default function SignUpPage() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4 dark">
+        <div className="liquid rounded-2xl p-8 w-full max-w-md">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-white/10 rounded w-3/4"></div>
+            <div className="h-4 bg-white/5 rounded w-1/2"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 dark">
       <div className="liquid rounded-2xl p-8 w-full max-w-md">

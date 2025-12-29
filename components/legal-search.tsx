@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { SearchHeader } from "./search-header"
 import { SearchInput } from "./search-input"
 import { SuggestionChips } from "./suggestion-chips"
 import { SampleQueries } from "./sample-queries"
@@ -17,6 +16,8 @@ import type { SearchResponse } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Scale, Sparkles, ArrowRight, LogIn } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { TrialExpiredModal } from "./trial-expired-modal"
+import { QuotaIndicator } from "./quota-indicator"
 
 const quickSuggestions = ["RTI process", "Property laws", "Consumer rights", "Labour laws"]
 
@@ -28,6 +29,8 @@ export function LegalSearch() {
   const [response, setResponse] = useState<SearchResponse | null>(null)
   const [tokensRemaining, setTokensRemaining] = useState(5)
   const [enableLLM, setEnableLLM] = useState(false)
+  const [showTrialModal, setShowTrialModal] = useState(false)
+  const [trialService, setTrialService] = useState<string>("")
   const maxTokens = 5
 
   // Update tokens on mount and periodically
@@ -104,6 +107,14 @@ export function LegalSearch() {
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: "Request failed" }))
         
+        if (res.status === 403 && errorData.trial_expired) {
+          // Show trial expired modal
+          setTrialService(errorData.service || "search")
+          setShowTrialModal(true)
+          setIsLoading(false)
+          return
+        }
+        
         if (res.status === 429) {
           toast.error("Rate limit exceeded", {
             description: errorData.message || "Too many requests. Please try again later.",
@@ -170,59 +181,35 @@ export function LegalSearch() {
   }
 
   if (!isSignedIn) {
+    // Redirect to landing page if not signed in
+    router.push("/landing")
+    return null
+  }
+
+  if (!isSignedIn) {
     return (
-      <div className="flex min-h-screen flex-col bg-background">
-        {/* Header without auth */}
-        <header className="liquid sticky top-0 z-50 px-4 py-3 md:px-6">
-          <div className="mx-auto flex max-w-7xl items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 backdrop-blur liquid-glow">
-                <Scale className="h-5 w-5 text-accent" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-semibold tracking-tight text-foreground">LegalAI</span>
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Search</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => router.push("/sign-in")}
-                className="liquid-subtle"
-              >
-                Sign In
-              </Button>
-              <Button
-                onClick={() => router.push("/sign-up")}
-                className="liquid-glow"
-              >
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </header>
+      <div className="flex min-h-screen flex-col bg-black">
 
         {/* Landing Page Content */}
         <main className="flex-1 px-4 py-12 md:px-6 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="text-center space-y-8">
               {/* Hero Section */}
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="inline-flex items-center gap-2 rounded-full liquid-subtle px-4 py-2 text-sm">
-                  <Sparkles className="h-4 w-4 text-accent" />
-                  <span>AI-Powered Legal Search</span>
+              <div className="space-y-8 animate-fade-in-up">
+                <div className="inline-flex items-center gap-2 rounded-full liquid-subtle px-5 py-2.5 text-sm border border-white/20 shadow-lg shadow-white/5">
+                  <Sparkles className="h-4 w-4 text-white" />
+                  <span className="text-white font-semibold">AI-Powered Legal Search</span>
                 </div>
                 
-                <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance">
+                <h1 className="text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl text-balance leading-tight">
                   Find Legal Answers
                   <br />
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  <span className="gradient-text-glow">
                     Instantly
                   </span>
                 </h1>
                 
-                <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
+                <p className="mx-auto max-w-2xl text-xl text-white/70 md:text-2xl leading-relaxed">
                   Search through Indian laws, acts, and legal precedents. Get AI-powered answers 
                   to your legal questions with citations and sources.
                 </p>
@@ -255,42 +242,42 @@ export function LegalSearch() {
               </div>
 
               {/* Features Grid */}
-              <div className="grid gap-6 md:grid-cols-3 mt-16">
-                <div className="liquid rounded-2xl p-6 text-left liquid-hover">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 mb-4">
-                    <Scale className="h-6 w-6 text-accent" />
+              <div className="grid gap-6 md:grid-cols-3 mt-20">
+                <div className="liquid rounded-2xl p-8 text-left liquid-hover border border-white/20 shadow-premium animate-fade-in-up stagger-1">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 mb-6 border border-white/20 shadow-lg shadow-white/5 group-hover:scale-110 transition-transform">
+                    <Scale className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Comprehensive Search</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-semibold mb-3 text-white">Comprehensive Search</h3>
+                  <p className="text-white/70 leading-relaxed">
                     Search across High Court judgements, Central Code, and State Acts all in one place.
                   </p>
                 </div>
 
-                <div className="liquid rounded-2xl p-6 text-left liquid-hover">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 mb-4">
-                    <Sparkles className="h-6 w-6 text-accent" />
+                <div className="liquid rounded-2xl p-8 text-left liquid-hover border border-white/20 shadow-premium animate-fade-in-up stagger-2">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 mb-6 border border-white/20 shadow-lg shadow-white/5 group-hover:scale-110 transition-transform">
+                    <Sparkles className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">AI-Powered Answers</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-semibold mb-3 text-white">AI-Powered Answers</h3>
+                  <p className="text-white/70 leading-relaxed">
                     Get intelligent answers with citations and source documents for every query.
                   </p>
                 </div>
 
-                <div className="liquid rounded-2xl p-6 text-left liquid-hover">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 mb-4">
-                    <ArrowRight className="h-6 w-6 text-accent" />
+                <div className="liquid rounded-2xl p-8 text-left liquid-hover border border-white/20 shadow-premium animate-fade-in-up stagger-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 mb-6 border border-white/20 shadow-lg shadow-white/5 group-hover:scale-110 transition-transform">
+                    <ArrowRight className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Fast & Accurate</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-semibold mb-3 text-white">Fast & Accurate</h3>
+                  <p className="text-white/70 leading-relaxed">
                     Get instant results with accurate legal information and proper citations.
                   </p>
                 </div>
               </div>
 
               {/* Search Preview */}
-              <div className="mt-16 liquid rounded-2xl p-8 max-w-3xl mx-auto">
-                <h2 className="text-2xl font-semibold mb-6">Try it out</h2>
-                <div className="space-y-4">
+              <div className="mt-20 liquid rounded-2xl p-10 max-w-3xl mx-auto border border-white/20 shadow-premium animate-fade-in-up stagger-4">
+                <h2 className="text-3xl font-semibold mb-8 text-white text-center">Try it out</h2>
+                <div className="space-y-6">
                   <SuggestionChips 
                     suggestions={quickSuggestions} 
                     onSelect={(q) => {
@@ -299,7 +286,7 @@ export function LegalSearch() {
                     }} 
                     disabled={false} 
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/60 text-center font-medium">
                     Sign up to start searching and get AI-powered legal answers
                   </p>
                 </div>
@@ -314,8 +301,7 @@ export function LegalSearch() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SearchHeader tokensRemaining={tokensRemaining} maxTokens={maxTokens} />
+    <div className="flex min-h-screen flex-col bg-black">
 
       <main className="flex-1 px-4 py-6 md:px-6 lg:py-10">
         <div className="mx-auto max-w-7xl">
@@ -331,14 +317,25 @@ export function LegalSearch() {
             <div className="space-y-6">
               {/* Hero Section */}
               {!response && !isLoading && (
-                <div className="mb-8 text-center lg:text-left">
-                  <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance">
-                    Ask Legal AI
-                  </h1>
-                  <p className="mt-3 text-muted-foreground max-w-2xl mx-auto lg:mx-0">
-                    Get instant answers from Indian laws, acts, and legal precedents. Powered by advanced AI to help you
-                    understand legal matters.
-                  </p>
+                <div className="animate-fade-in-up">
+                  <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="text-center lg:text-left space-y-4">
+                      <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl text-balance gradient-text-glow">
+                        Ask Nyayik
+                      </h1>
+                      <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Get instant answers from Indian laws, acts, and legal precedents. Powered by advanced AI to help you
+                        understand legal matters.
+                      </p>
+                    </div>
+                    <div className="flex justify-center lg:justify-end items-center gap-4 mt-6 lg:mt-0">
+                      <QuotaIndicator tokensRemaining={tokensRemaining} maxTokens={maxTokens} />
+                      <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white liquid-subtle border border-white/20 shadow-lg shadow-white/5 hover:bg-white/15 transition-all">
+                        <Sparkles className="h-3.5 w-3.5 text-white" />
+                        <span className="text-white">Beta</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -356,8 +353,11 @@ export function LegalSearch() {
 
               {/* Suggestion Chips */}
               {!response && !isLoading && (
-                <div className="space-y-4">
-                  <SuggestionChips suggestions={quickSuggestions} onSelect={handleSelectQuery} disabled={isLoading} />
+                <div className="space-y-6 animate-fade-in-up stagger-2">
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-white/60">Quick suggestions:</p>
+                    <SuggestionChips suggestions={quickSuggestions} onSelect={handleSelectQuery} disabled={isLoading} />
+                  </div>
 
                   {/* Mobile Sample Queries */}
                   <div className="lg:hidden">
@@ -371,7 +371,7 @@ export function LegalSearch() {
 
               {/* Results */}
               {response && !isLoading && (
-                <div className="space-y-6" role="region" aria-live="polite" aria-label="Search Results">
+                <div className="space-y-8 animate-fade-in-up" role="region" aria-live="polite" aria-label="Search Results">
                   <AnswerCard response={response} />
                   <DocumentList sources={response.sources} />
                 </div>
@@ -382,6 +382,12 @@ export function LegalSearch() {
       </main>
 
       <SearchFooter />
+      {showTrialModal && (
+        <TrialExpiredModal
+          service={trialService}
+          onClose={() => setShowTrialModal(false)}
+        />
+      )}
     </div>
   )
 }

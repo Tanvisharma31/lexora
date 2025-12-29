@@ -48,22 +48,22 @@ export function AnswerCard({ response, className }: AnswerCardProps) {
   return (
     <div
       className={cn(
-        "liquid rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 liquid-hover",
+        "liquid rounded-2xl overflow-hidden animate-fade-in-up liquid-hover",
         className,
       )}
       role="article"
       aria-label="AI Generated Answer"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/30 px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20">
-            <Bot className="h-5 w-5 text-accent" />
+      <div className="flex items-center justify-between border-b border-white/10 px-6 py-5 bg-gradient-to-r from-white/5 to-transparent">
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 border border-white/20 shadow-lg shadow-white/5">
+            <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">AI Answer</h3>
+            <h3 className="font-semibold text-white text-lg">AI Answer</h3>
             {response.meta && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-xs text-white/50 mt-1">
                 <Clock className="h-3 w-3" />
                 <span>{response.meta.elapsed_ms}ms</span>
                 <span>•</span>
@@ -75,54 +75,77 @@ export function AnswerCard({ response, className }: AnswerCardProps) {
 
         <div className="flex items-center gap-2">
           {/* Confidence Badge */}
-          <span className={cn("rounded-full px-3 py-1 text-xs font-medium", confidence.color)}>{confidence.label}</span>
+          <span className={cn(
+            "rounded-full px-3 py-1.5 text-xs font-semibold border backdrop-blur-sm transition-all hover:scale-105",
+            confidence.color,
+            "border-white/10"
+          )}>
+            {confidence.label}
+          </span>
         </div>
       </div>
 
       {/* Content */}
-      {response.answer_html ? (
-        <div
-          className="prose prose-invert prose-sm max-w-none px-6 py-5"
-          dangerouslySetInnerHTML={{ __html: response.answer_html }}
-        />
-      ) : response.answer ? (
-        <div className="prose prose-invert prose-sm max-w-none px-6 py-5">
-          <p className="whitespace-pre-wrap">{response.answer}</p>
-        </div>
-      ) : (
-        <div className="px-6 py-5 text-muted-foreground">
-          <p>No answer available. Please check the source documents below.</p>
-        </div>
-      )}
+      <div className="px-6 py-6">
+        {response.answer_html ? (
+          <div
+            className="prose prose-invert prose-sm max-w-none text-white/90 leading-relaxed"
+            style={{
+              '--tw-prose-headings': '#FFFFFF',
+              '--tw-prose-links': '#FFFFFF',
+              '--tw-prose-bold': '#FFFFFF',
+            } as React.CSSProperties}
+            dangerouslySetInnerHTML={{ __html: response.answer_html }}
+          />
+        ) : response.answer ? (
+          <div className="prose prose-invert prose-sm max-w-none text-white/90 leading-relaxed">
+            <p className="whitespace-pre-wrap">{response.answer}</p>
+          </div>
+        ) : (
+          <div className="text-white/60">
+            <p>No answer available. Please check the source documents below.</p>
+          </div>
+        )}
+      </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-border/30 px-6 py-4">
+      <div className="flex items-center justify-between border-t border-white/10 px-6 py-4 bg-gradient-to-r from-transparent to-white/5">
         {/* Provenance Strip */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>Sources:</span>
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-3 text-xs text-white/60">
+          <span className="font-medium">Sources:</span>
+          <div className="flex items-center gap-1.5">
             {response.sources.slice(0, 3).map((source, i) => (
               <span
                 key={i}
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-[10px] font-medium text-foreground"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 border border-white/20 text-[10px] font-semibold text-white hover:bg-white/20 hover:scale-110 transition-all cursor-pointer"
                 title={source.title}
               >
                 {i + 1}
               </span>
             ))}
             {response.sources.length > 3 && (
-              <span className="text-muted-foreground">+{response.sources.length - 3}</span>
+              <span className="text-white/50 ml-1">+{response.sources.length - 3}</span>
             )}
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={handleCopy} className="h-8 gap-1.5 text-xs">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleCopy} 
+            className="h-9 gap-2 text-xs text-white/80 hover:text-white hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all"
+          >
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Copied" : "Copy"}
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleShare} className="h-8 gap-1.5 text-xs">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleShare} 
+            className="h-9 gap-2 text-xs text-white/80 hover:text-white hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all"
+          >
             <Share2 className="h-3.5 w-3.5" />
             Share
           </Button>
