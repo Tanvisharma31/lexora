@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
+import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,8 +24,6 @@ import {
   RefreshCw,
   Eye
 } from "lucide-react"
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
 
 interface Client {
   id: string
@@ -67,11 +66,7 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${BACKEND_URL}/api/clients`, {
-        headers: {
-          "X-Clerk-User-Id": user?.id || "",
-        },
-      })
+      const response = await fetch("/api/clients")
 
       if (!response.ok) throw new Error("Failed to fetch clients")
       const data = await response.json()
@@ -88,11 +83,10 @@ export default function ClientsPage() {
     e.preventDefault()
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/clients`, {
+      const response = await fetch("/api/clients", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Clerk-User-Id": user?.id || "",
         },
         body: JSON.stringify({
           name: formData.name,
@@ -127,11 +121,8 @@ export default function ClientsPage() {
 
   const handleRegenerateToken = async (clientId: string) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/clients/${clientId}/regenerate-token`, {
+      const response = await fetch(`/api/clients/${clientId}/regenerate-token`, {
         method: "POST",
-        headers: {
-          "X-Clerk-User-Id": user?.id || "",
-        },
       })
 
       if (!response.ok) throw new Error("Failed to regenerate token")
@@ -157,7 +148,9 @@ export default function ClientsPage() {
   )
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="flex min-h-screen flex-col bg-background">
+      <Navigation />
+      <div className="container mx-auto px-3 sm:px-4 md:p-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -423,6 +416,7 @@ export default function ClientsPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

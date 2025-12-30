@@ -22,8 +22,8 @@ import {
   XCircle,
   Filter
 } from "lucide-react"
+import { Navigation } from "@/components/navigation"
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
 
 interface Deadline {
   id: string
@@ -86,18 +86,14 @@ export default function CalendarPage() {
   const fetchDeadlines = async () => {
     try {
       setLoading(true)
-      let url = `${BACKEND_URL}/api/deadlines?limit=100`
+      let url = "/api/deadlines?limit=100"
       
       if (filter === "pending") url += "&status=PENDING"
       else if (filter === "completed") url += "&status=COMPLETED"
       else if (filter === "overdue") url += "&overdue=true"
-      else if (filter === "upcoming") url = `${BACKEND_URL}/api/deadlines/upcoming?days=7`
+      else if (filter === "upcoming") url = "/api/deadlines/upcoming?days=7"
 
-      const response = await fetch(url, {
-        headers: {
-          "X-Clerk-User-Id": user?.id || "",
-        },
-      })
+      const response = await fetch(url)
 
       if (!response.ok) throw new Error("Failed to fetch deadlines")
       const data = await response.json()
@@ -112,11 +108,7 @@ export default function CalendarPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/deadlines/stats/overview`, {
-        headers: {
-          "X-Clerk-User-Id": user?.id || "",
-        },
-      })
+      const response = await fetch("/api/deadlines/stats/overview")
 
       if (!response.ok) throw new Error("Failed to fetch stats")
       const data = await response.json()
@@ -135,27 +127,51 @@ export default function CalendarPage() {
         .map(d => parseInt(d.trim()))
         .filter(d => !isNaN(d))
 
-      const response = await fetch(`${BACKEND_URL}/api/deadlines`, {
+      // Validate required fields
+      if (!formData.title.trim()) {
+        toast.error("Please enter a title")
+        return
+      }
+      if (!formData.date) {
+        toast.error("Please select a date")
+        return
+      }
+
+      // Format date properly - ensure it's in ISO format
+      let dateValue = formData.date
+      // If it's just a date (YYYY-MM-DD), add time if provided
+      if (dateValue && typeof dateValue === 'string' && !dateValue.includes('T')) {
+        if (formData.time && formData.time.trim()) {
+          dateValue = `${dateValue}T${formData.time}:00`
+        } else {
+          dateValue = `${dateValue}T00:00:00`
+        }
+      }
+
+      const response = await fetch("/api/deadlines", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Clerk-User-Id": user?.id || "",
         },
         body: JSON.stringify({
           title: formData.title,
           description: formData.description || null,
           deadlineType: formData.deadlineType,
-          date: formData.date,
+          date: dateValue,
           time: formData.time || null,
           durationMinutes: formData.durationMinutes ? parseInt(formData.durationMinutes) : null,
           location: formData.location || null,
           priority: formData.priority,
-          reminderDays: reminderDaysArray,
+          reminderDays: reminderDaysArray.length > 0 ? reminderDaysArray : [7, 3, 1],
           notes: formData.notes || null,
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to create deadline")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
+        const errorMessage = errorData.details || errorData.error || "Failed to create deadline"
+        throw new Error(errorMessage)
+      }
 
       toast.success("Deadline created successfully!")
       setIsCreateDialogOpen(false)
@@ -175,17 +191,17 @@ export default function CalendarPage() {
       fetchStats()
     } catch (error) {
       console.error("Error creating deadline:", error)
-      toast.error("Failed to create deadline")
+      const errorMessage = error instanceof Error ? error.message : "Failed to create deadline"
+      toast.error(errorMessage)
     }
   }
 
   const handleMarkComplete = async (deadlineId: string) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/deadlines/${deadlineId}`, {
+      const response = await fetch(`/api/deadlines/${deadlineId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "X-Clerk-User-Id": user?.id || "",
         },
         body: JSON.stringify({ status: "COMPLETED" }),
       })
@@ -224,39 +240,52 @@ export default function CalendarPage() {
     return <Badge variant="secondary">Pending</Badge>
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return "N/A"
+    try {
+      return new Date(dateStr).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    } catch {
+      return dateStr
+    }
   }
 
-  const formatDateTime = (dateStr: string, timeStr: string | null) => {
-    const date = new Date(dateStr)
-    if (timeStr) {
-      return `${formatDate(dateStr)} at ${timeStr}`
+  const formatDateTime = (dateStr: string | null | undefined, timeStr: string | null | undefined) => {
+    if (!dateStr) return "N/A"
+    try {
+      if (timeStr) {
+        return `${formatDate(dateStr)} at ${timeStr}`
+      }
+      return formatDate(dateStr)
+    } catch {
+      return dateStr
     }
-    return formatDate(dateStr)
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Calendar & Deadlines</h1>
-          <p className="text-muted-foreground">
-            Manage court dates, filings, and important deadlines
-          </p>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Deadline
-            </Button>
-          </DialogTrigger>
+    <div className="flex min-h-screen flex-col bg-black">
+      <Navigation />
+
+      <div className="container mx-auto px-3 sm:px-4 md:p-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        {/* Header - Responsive */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Calendar & Deadlines</h1>
+            <p className="text-sm sm:text-base text-white/70 mt-1">
+              Manage court dates, filings, and important deadlines
+            </p>
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="text-xs sm:text-sm flex-shrink-0">
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden sm:inline">New Deadline</span>
+                <span className="sm:hidden">New</span>
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Deadline</DialogTitle>
@@ -532,7 +561,7 @@ export default function CalendarPage() {
                       {getStatusBadge(deadline)}
                     </div>
                     <CardDescription>
-                      {deadline.deadlineType.replace(/_/g, " ")}
+                      {deadline.deadlineType ? deadline.deadlineType.replace(/_/g, " ") : "Deadline"}
                       {deadline.description && ` • ${deadline.description}`}
                     </CardDescription>
                   </div>
@@ -591,6 +620,7 @@ export default function CalendarPage() {
           ))}
         </div>
       )}
+    </div>
     </div>
   )
 }

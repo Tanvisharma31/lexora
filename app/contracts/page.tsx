@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
+import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,8 +25,6 @@ import {
   TrendingUp,
   FileCheck
 } from "lucide-react"
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
 
 interface Contract {
   id: string
@@ -85,17 +84,13 @@ export default function ContractsPage() {
   const fetchContracts = async () => {
     try {
       setLoading(true)
-      let url = `${BACKEND_URL}/api/contracts?limit=100`
+      let url = "/api/contracts?limit=100"
       
       if (filter === "active") url += "&status=ACTIVE"
       else if (filter === "expired") url += "&status=EXPIRED"
-      else if (filter === "expiring") url = `${BACKEND_URL}/api/contracts/expiring?days=30`
+      else if (filter === "expiring") url = "/api/contracts/expiring?days=30"
 
-      const response = await fetch(url, {
-        headers: {
-          "X-Clerk-User-Id": user?.id || "",
-        },
-      })
+      const response = await fetch(url)
 
       if (!response.ok) throw new Error("Failed to fetch contracts")
       const data = await response.json()
@@ -110,11 +105,7 @@ export default function ContractsPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/contracts/stats`, {
-        headers: {
-          "X-Clerk-User-Id": user?.id || "",
-        },
-      })
+      const response = await fetch("/api/contracts/stats")
 
       if (!response.ok) throw new Error("Failed to fetch stats")
       const data = await response.json()
@@ -128,11 +119,10 @@ export default function ContractsPage() {
     e.preventDefault()
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/contracts`, {
+      const response = await fetch("/api/contracts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Clerk-User-Id": user?.id || "",
         },
         body: JSON.stringify({
           title: formData.title,
@@ -204,7 +194,9 @@ export default function ContractsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="flex min-h-screen flex-col bg-background">
+      <Navigation />
+      <div className="container mx-auto px-3 sm:px-4 md:p-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -511,6 +503,7 @@ export default function ContractsPage() {
           )}
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   )
 }

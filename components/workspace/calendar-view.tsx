@@ -1,28 +1,71 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, MapPin, AlertCircle } from "lucide-react"
+import { toast } from "sonner"
 
-// Mock Data
-const EVENTS = [
-    { id: 1, title: "Hearing: Sharma v/s State", type: "hearing", date: new Date(new Date().setDate(new Date().getDate() + 1)), location: "Supreme Court, Court No. 4", urgency: "high" },
-    { id: 2, title: "Filing Deadline: TechCorp Merger", type: "deadline", date: new Date(new Date().setDate(new Date().getDate() + 3)), location: "NCLT Delhi", urgency: "medium" },
-    { id: 3, title: "Client Meeting: Estate Planning", type: "meeting", date: new Date(new Date().setDate(new Date().getDate() + 5)), location: "Office Conf Room A", urgency: "low" },
-    { id: 4, title: "Evidence Submission: Civil Suit 402", type: "submission", date: new Date(new Date().setDate(new Date().getDate() + 7)), location: "District Court Saket", urgency: "high" },
-]
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
+
+interface CalendarEvent {
+    id: string
+    title: string
+    start: string
+    end?: string
+    type: string
+    priority: string
+    case_title?: string
+    location?: string
+    status: string
+}
 
 export function CalendarView() {
+    const { user } = useUser()
     const [currentDate, setCurrentDate] = useState(new Date())
+    const [events, setEvents] = useState<CalendarEvent[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        if (user) {
+            fetchCalendarEvents()
+        }
+    }, [user, currentDate])
+
+    const fetchCalendarEvents = async () => {
+        try {
+            setLoading(true)
+            const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+            const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+            
+            const response = await fetch(
+                `${BACKEND_URL}/api/deadlines/calendar?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
+                {
+                    headers: {
+                        "X-Clerk-User-Id": user?.id || "",
+                    },
+                }
+            )
+
+            if (!response.ok) throw new Error("Failed to fetch calendar events")
+            const data = await response.json()
+            setEvents(data || [])
+        } catch (error) {
+            console.error("Error fetching calendar events:", error)
+            toast.error("Failed to load calendar events")
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const nextMonth = () => {
-        setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
     }
 
     const prevMonth = () => {
-        setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
     }
 
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
@@ -61,7 +104,11 @@ export function CalendarView() {
                     <div className="grid grid-cols-7 gap-2">
                         {dates.map((date, i) => {
                             const isToday = date === new Date().getDate() && currentDate.getMonth() === new Date().getMonth()
-                            const hasEvent = date && EVENTS.some(e => e.date.getDate() === date && e.date.getMonth() === currentDate.getMonth())
+                            const dateStr = date ? new Date(currentDate.getFullYear(), currentDate.getMonth(), date).toISOString().split('T')[0] : null
+                            const hasEvent = dateStr && events.some(e => {
+                                const eventDate = new Date(e.start).toISOString().split('T')[0]
+                                return eventDate === dateStr
+                            })
 
                             return (
                                 <div
@@ -88,25 +135,43 @@ export function CalendarView() {
                     <CardTitle className="text-lg">Upcoming Matters</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {EVENTS.map((event) => (
-                        <div key={event.id} className="flex gap-3 items-start p-3 rounded-lg border border-border bg-card/50 hover:bg-muted/50 transition-colors">
-                            <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${event.urgency === 'high' ? 'bg-red-500' :
-                                    event.urgency === 'medium' ? 'bg-orange-500' : 'bg-green-500'
-                                }`} />
-                            <div className="space-y-1">
-                                <p className="font-medium text-sm leading-none">{event.title}</p>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    {event.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                    {loading ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground">Loading events...</div>
+                    ) : events.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground">No upcoming events</div>
+                    ) : (
+                        events.slice(0, 5).map((event) => {
+                            const eventDate = new Date(event.start)
+                            const priorityColor = event.priority === 'URGENT' || event.priority === 'HIGH' ? 'bg-red-500' :
+                                event.priority === 'MEDIUM' ? 'bg-orange-500' : 'bg-green-500'
+                            
+                            return (
+                                <div key={event.id} className="flex gap-3 items-start p-3 rounded-lg border border-border bg-card/50 hover:bg-muted/50 transition-colors">
+                                    <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${priorityColor}`} />
+                                    <div className="space-y-1 flex-1">
+                                        <p className="font-medium text-sm leading-none">{event.title}</p>
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <Clock className="h-3 w-3" />
+                                            {eventDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                        </div>
+                                        {event.location && (
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <MapPin className="h-3 w-3" />
+                                                {event.location}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <MapPin className="h-3 w-3" />
-                                    {event.location}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <Button variant="outline" className="w-full text-xs">View Full Schedule</Button>
+                            )
+                        })
+                    )}
+                    <Button 
+                        variant="outline" 
+                        className="w-full text-xs"
+                        onClick={() => window.location.href = '/calendar'}
+                    >
+                        View Full Schedule
+                    </Button>
                 </CardContent>
             </Card>
         </div>

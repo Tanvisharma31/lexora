@@ -104,23 +104,23 @@ export default function CompanyDashboard() {
         <div className="flex min-h-screen flex-col bg-black">
             <Navigation />
 
-            <main className="flex-1 px-4 py-10 md:px-6 lg:py-16">
-                <div className="mx-auto max-w-7xl space-y-10">
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in-up">
-                        <div>
-                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+            <main className="flex-1 px-3 sm:px-4 md:px-6 py-6 sm:py-8 md:py-10 lg:py-16">
+                <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8 md:space-y-10">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 animate-fade-in-up">
+                        <div className="flex-1 min-w-0">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
                                 <span className="gradient-text-glow">Company Legal Dashboard</span>
                             </h1>
-                            <p className="mt-4 text-lg text-white/70">Manage contracts, track compliance, and monitor legal risks</p>
+                            <p className="mt-2 sm:mt-4 text-sm sm:text-base md:text-lg text-white/70">Manage contracts, track compliance, and monitor legal risks</p>
                         </div>
-                        <Button onClick={fetchData} variant="outline" size="sm">
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            Refresh
+                        <Button onClick={fetchData} variant="outline" size="sm" className="flex-shrink-0 text-xs sm:text-sm">
+                            <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${loading ? 'animate-spin' : ''}`} />
+                            <span className="hidden sm:inline">Refresh</span>
                         </Button>
                     </div>
 
-                    {/* Key Metrics */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {/* Key Metrics - Responsive */}
+                    <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Active Contracts</CardTitle>

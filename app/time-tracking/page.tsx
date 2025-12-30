@@ -110,25 +110,21 @@ export default function TimeTrackingPage() {
         setLoading(true)
         try {
             // Fetch active timer
-            const timerRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/time-tracking/timer/active`, {
-                headers: {
-                    'X-Clerk-User-Id': 'current-user-id' // Replace with actual
-                }
-            })
+            const timerRes = await fetch("/api/time-tracking/timer/active")
             if (timerRes.ok) {
                 const data = await timerRes.json()
-                setActiveTimer(data)
+                if (data) setActiveTimer(data)
             }
 
             // Fetch time entries
-            const entriesRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/time-tracking/entries`)
+            const entriesRes = await fetch("/api/time-tracking/entries")
             if (entriesRes.ok) {
                 const data = await entriesRes.json()
                 setTimeEntries(data)
             }
 
             // Fetch stats
-            const statsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/time-tracking/stats?period=month`)
+            const statsRes = await fetch("/api/time-tracking/stats?period=month")
             if (statsRes.ok) {
                 const data = await statsRes.json()
                 setStats(data)
@@ -143,7 +139,7 @@ export default function TimeTrackingPage() {
 
     const startTimer = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/time-tracking/timer/start`, {
+            const response = await fetch("/api/time-tracking/timer/start", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -171,7 +167,7 @@ export default function TimeTrackingPage() {
 
     const stopTimer = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/time-tracking/timer/stop`, {
+            const response = await fetch("/api/time-tracking/timer/stop", {
                 method: 'POST'
             })
 
@@ -194,7 +190,7 @@ export default function TimeTrackingPage() {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/time-tracking/entries`, {
+            const response = await fetch("/api/time-tracking/entries", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -256,7 +252,7 @@ export default function TimeTrackingPage() {
                                 <Clock className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stats?.total_hours.toFixed(1) || 0}</div>
+                                <div className="text-2xl font-bold">{stats?.total_hours?.toFixed(1) || 0}</div>
                                 <p className="text-xs text-muted-foreground">All activities</p>
                             </CardContent>
                         </Card>
@@ -266,9 +262,9 @@ export default function TimeTrackingPage() {
                                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stats?.billable_hours.toFixed(1) || 0}</div>
+                                <div className="text-2xl font-bold">{stats?.billable_hours?.toFixed(1) || 0}</div>
                                 <p className="text-xs text-muted-foreground">
-                                    {stats ? Math.round((stats.billable_hours / stats.total_hours) * 100) : 0}% of total
+                                    {stats && stats.total_hours ? Math.round((stats.billable_hours / stats.total_hours) * 100) : 0}% of total
                                 </p>
                             </CardContent>
                         </Card>
@@ -278,7 +274,7 @@ export default function TimeTrackingPage() {
                                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">₹{stats?.total_amount.toLocaleString() || 0}</div>
+                                <div className="text-2xl font-bold">₹{stats?.total_amount?.toLocaleString() || 0}</div>
                                 <p className="text-xs text-muted-foreground">Billable revenue</p>
                             </CardContent>
                         </Card>

@@ -22,9 +22,11 @@ interface Case {
 interface Document {
     id: string
     title: string
-    content: string
-    file_url: string
-    file_type: string
+    content?: string | null
+    file_url?: string | null
+    fileUrl?: string | null
+    file_type?: string | null
+    fileType?: string | null
     created_at: string
 }
 
@@ -37,6 +39,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     const [isLoading, setIsLoading] = useState(true)
     const [showUploadModal, setShowUploadModal] = useState(false)
     const [newDoc, setNewDoc] = useState({ title: "", content: "" })
+    const [uploadFile, setUploadFile] = useState<File | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
 
     useEffect(() => {
         if (isSignedIn) {
@@ -75,32 +79,56 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     }
 
     const handleUploadDocument = async () => {
-        if (!newDoc.title) {
-            toast.error("Title is required")
+        if (!newDoc.title && !uploadFile) {
+            toast.error("Please provide a title or upload a file")
             return
         }
 
+        setIsUploading(true)
         try {
+            const formData = new FormData()
+            formData.append("title", newDoc.title || uploadFile?.name || "Untitled Document")
+            
+            if (uploadFile) {
+                formData.append("file", uploadFile)
+            } else if (newDoc.content) {
+                formData.append("content", newDoc.content)
+            }
+
             const response = await fetch(`/api/workspace/cases/${id}/documents`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    title: newDoc.title,
-                    content: newDoc.content,
-                    file_type: "text/plain" // Default for manual entry
-                })
+                body: formData
             })
 
             if (response.ok) {
                 toast.success("Document added successfully")
                 setShowUploadModal(false)
                 setNewDoc({ title: "", content: "" })
+                setUploadFile(null)
                 fetchDocuments()
             } else {
-                toast.error("Failed to add document")
+                const error = await response.json()
+                toast.error(error.error || "Failed to add document")
             }
         } catch (error) {
+            console.error("Error uploading document:", error)
             toast.error("Error adding document")
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            if (file.size > 50 * 1024 * 1024) { // 50MB limit
+                toast.error("File size must be less than 50MB")
+                return
+            }
+            setUploadFile(file)
+            if (!newDoc.title) {
+                setNewDoc({ ...newDoc, title: file.name })
+            }
         }
     }
 
@@ -174,6 +202,36 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                                             placeholder="e.g. Petition Draft"
                                         />
                                     </div>
+                                    
+                                    <div>
+                                        <label className="text-sm font-medium mb-1 block">Upload File (PDF, DOCX, etc.)</label>
+                                        <div className="border-2 border-dashed border-primary/20 rounded-lg p-4 text-center">
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.doc,.docx,.txt"
+                                                onChange={handleFileChange}
+                                                className="hidden"
+                                                id="file-upload"
+                                            />
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="cursor-pointer flex flex-col items-center gap-2"
+                                            >
+                                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                                <span className="text-sm text-muted-foreground">
+                                                    {uploadFile ? uploadFile.name : "Click to upload or drag and drop"}
+                                                </span>
+                                                {uploadFile && (
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {(uploadFile.size / 1024 / 1024).toFixed(2)} MB
+                                                    </span>
+                                                )}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div className="text-center text-sm text-muted-foreground">OR</div>
+
                                     <div>
                                         <label className="text-sm font-medium mb-1 block">Content (Optional)</label>
                                         <textarea
@@ -181,11 +239,27 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                                             onChange={(e) => setNewDoc({ ...newDoc, content: e.target.value })}
                                             className="w-full rounded-lg border border-primary/20 bg-background/50 px-3 py-2 liquid-subtle min-h-[100px]"
                                             placeholder="Paste document content here..."
+                                            disabled={!!uploadFile}
                                         />
                                     </div>
                                     <div className="flex justify-end gap-2 mt-6">
-                                        <Button variant="ghost" onClick={() => setShowUploadModal(false)}>Cancel</Button>
-                                        <Button onClick={handleUploadDocument}>Save Document</Button>
+                                        <Button 
+                                            variant="ghost" 
+                                            onClick={() => {
+                                                setShowUploadModal(false)
+                                                setNewDoc({ title: "", content: "" })
+                                                setUploadFile(null)
+                                            }}
+                                            disabled={isUploading}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button 
+                                            onClick={handleUploadDocument}
+                                            disabled={isUploading || (!newDoc.title && !uploadFile)}
+                                        >
+                                            {isUploading ? "Uploading..." : "Save Document"}
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -216,13 +290,65 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                                             Added {new Date(doc.created_at).toLocaleDateString()}
                                         </p>
                                         <div className="flex gap-2 mt-auto">
-                                            <Button variant="outline" size="sm" className="w-full text-xs h-8">
-                                                View
-                                            </Button>
-                                            <Button variant="outline" size="sm" className="w-full text-xs h-8">
-                                                <Download className="h-3 w-3 mr-1" />
-                                                Download
-                                            </Button>
+                                            {(doc.file_url || doc.fileUrl) ? (
+                                                <>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        size="sm" 
+                                                        className="w-full text-xs h-8"
+                                                        onClick={() => window.open(doc.file_url || doc.fileUrl || '', '_blank')}
+                                                    >
+                                                        View
+                                                    </Button>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        size="sm" 
+                                                        className="w-full text-xs h-8"
+                                                        onClick={async () => {
+                                                            try {
+                                                                const fileUrl = doc.file_url || doc.fileUrl
+                                                                if (!fileUrl) return
+                                                                const response = await fetch(fileUrl)
+                                                                const blob = await response.blob()
+                                                                const url = URL.createObjectURL(blob)
+                                                                const a = document.createElement('a')
+                                                                a.href = url
+                                                                a.download = doc.title
+                                                                a.click()
+                                                                URL.revokeObjectURL(url)
+                                                                toast.success("Download started")
+                                                            } catch (error) {
+                                                                toast.error("Failed to download")
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Download className="h-3 w-3 mr-1" />
+                                                        Download
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className="w-full text-xs h-8"
+                                                    onClick={() => {
+                                                        const newWindow = window.open()
+                                                        if (newWindow) {
+                                                            newWindow.document.write(`
+                                                                <html>
+                                                                    <head><title>${doc.title}</title></head>
+                                                                    <body style="padding: 20px; font-family: Arial, sans-serif;">
+                                                                        <h1>${doc.title}</h1>
+                                                                        <pre style="white-space: pre-wrap;">${doc.content || 'No content available'}</pre>
+                                                                    </body>
+                                                                </html>
+                                                            `)
+                                                        }
+                                                    }}
+                                                >
+                                                    View Content
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 ))

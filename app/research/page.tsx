@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
+import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,8 +26,6 @@ import {
   Edit,
   Trash2
 } from "lucide-react"
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
 
 interface ResearchFolder {
   id: string
@@ -116,9 +115,7 @@ export default function ResearchLibraryPage() {
 
   const fetchFolders = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/research/folders`, {
-        headers: { "X-Clerk-User-Id": user?.id || "" },
-      })
+      const response = await fetch("/api/research/folders")
       if (!response.ok) throw new Error("Failed to fetch folders")
       const data = await response.json()
       setFolders(data)
@@ -129,9 +126,7 @@ export default function ResearchLibraryPage() {
 
   const fetchSavedSearches = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/research/searches`, {
-        headers: { "X-Clerk-User-Id": user?.id || "" },
-      })
+      const response = await fetch("/api/research/searches")
       if (!response.ok) throw new Error("Failed to fetch searches")
       const data = await response.json()
       setSavedSearches(data)
@@ -142,9 +137,7 @@ export default function ResearchLibraryPage() {
 
   const fetchAnnotations = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/research/annotations`, {
-        headers: { "X-Clerk-User-Id": user?.id || "" },
-      })
+      const response = await fetch("/api/research/annotations")
       if (!response.ok) throw new Error("Failed to fetch annotations")
       const data = await response.json()
       setAnnotations(data)
@@ -155,9 +148,7 @@ export default function ResearchLibraryPage() {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/research/notes`, {
-        headers: { "X-Clerk-User-Id": user?.id || "" },
-      })
+      const response = await fetch("/api/research/notes")
       if (!response.ok) throw new Error("Failed to fetch notes")
       const data = await response.json()
       setNotes(data)
@@ -169,11 +160,10 @@ export default function ResearchLibraryPage() {
   const handleCreateFolder = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch(`${BACKEND_URL}/api/research/folders`, {
+      const response = await fetch("/api/research/folders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Clerk-User-Id": user?.id || "",
         },
         body: JSON.stringify({
           name: folderForm.name,
@@ -202,11 +192,10 @@ export default function ResearchLibraryPage() {
         .map(t => t.trim())
         .filter(t => t.length > 0)
 
-      const response = await fetch(`${BACKEND_URL}/api/research/notes`, {
+      const response = await fetch("/api/research/notes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Clerk-User-Id": user?.id || "",
         },
         body: JSON.stringify({
           title: noteForm.title,
@@ -258,7 +247,9 @@ export default function ResearchLibraryPage() {
   )
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="flex min-h-screen flex-col bg-background">
+      <Navigation />
+      <div className="container mx-auto px-3 sm:px-4 md:p-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -629,7 +620,9 @@ export default function ResearchLibraryPage() {
           )}
         </TabsContent>
       </Tabs>
+      </div>
     </div>
+    
   )
 }
 
