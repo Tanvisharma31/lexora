@@ -24,9 +24,9 @@ export function LandingHero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#0a0a0a] to-[#1a1a1a]">
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-muted">
         {mounted && (
-          <div 
+          <div
             className="absolute inset-0 opacity-30"
             style={{
               background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.1), transparent 40%)`,
@@ -38,9 +38,9 @@ export function LandingHero() {
 
       {/* Geometric shapes */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/3 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/3 rounded-full blur-3xl" />
       </div>
 
       {/* Grid pattern */}
@@ -53,10 +53,10 @@ export function LandingHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm shadow-lg shadow-white/5 hover:bg-white/15 hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-secondary border border-border backdrop-blur-sm shadow-lg shadow-sm hover:bg-secondary/80 hover:scale-105 transition-all"
           >
-            <Sparkles className="h-4 w-4 text-white" />
-            <span className="text-sm font-semibold text-white">India's Premier AI Legal Tech Platform</span>
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">India's Premier AI Legal Tech Platform</span>
           </motion.div>
 
           {/* Main Headline */}
@@ -68,9 +68,9 @@ export function LandingHero() {
           >
             <span className="gradient-text-glow">Nyayik</span>
             <br />
-            <span className="text-white">AI-Powered Legal</span>
+            <span className="text-foreground">AI-Powered Legal</span>
             <br />
-            <span className="text-white/90">Intelligence Platform</span>
+            <span className="text-foreground/90">Intelligence Platform</span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -78,9 +78,9 @@ export function LandingHero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl sm:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            Transform your legal practice with AI. Search laws, analyze documents, draft contracts, 
+            Transform your legal practice with AI. Search laws, analyze documents, draft contracts,
             and practice arguments—all powered by advanced AI technology.
           </motion.p>
 
@@ -94,7 +94,7 @@ export function LandingHero() {
             <Button
               size="lg"
               onClick={() => router.push(isSignedIn ? "/" : "/sign-up")}
-              className="group px-10 py-7 text-lg font-semibold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/20"
+              className="group px-10 py-7 text-lg font-semibold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
             >
               Get Started Free
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -103,7 +103,7 @@ export function LandingHero() {
               size="lg"
               variant="outline"
               onClick={() => router.push("/#features")}
-              className="px-10 py-7 text-lg font-semibold border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 backdrop-blur-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/5"
+              className="px-10 py-7 text-lg font-semibold border-border bg-secondary hover:bg-secondary/80 hover:border-border/80 backdrop-blur-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-sm"
             >
               Explore Features
             </Button>
@@ -116,17 +116,17 @@ export function LandingHero() {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="flex flex-wrap items-center justify-center gap-10 pt-12"
           >
-            <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all">
-              <Shield className="h-5 w-5 text-white/80" />
-              <span className="text-sm font-medium text-white/70">Secure & Compliant</span>
+            <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg bg-secondary border border-border hover:bg-secondary/80 hover:scale-105 transition-all">
+              <Shield className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Secure & Compliant</span>
             </div>
-            <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all">
-              <Zap className="h-5 w-5 text-white/80" />
-              <span className="text-sm font-medium text-white/70">AI-Powered</span>
+            <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg bg-secondary border border-border hover:bg-secondary/80 hover:scale-105 transition-all">
+              <Zap className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">AI-Powered</span>
             </div>
-            <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all">
-              <Scale className="h-5 w-5 text-white/80" />
-              <span className="text-sm font-medium text-white/70">Legal Experts</span>
+            <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg bg-secondary border border-border hover:bg-secondary/80 hover:scale-105 transition-all">
+              <Scale className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Legal Experts</span>
             </div>
           </motion.div>
         </div>

@@ -30,6 +30,49 @@ export default function DraftGenPage() {
   const { isSignedIn } = useUser()
   const router = useRouter()
   const [selectedTemplate, setSelectedTemplate] = useState("legal_notice")
+  // Template-specific field suggestions
+  const getFieldSuggestions = (template: string): Array<{ key: string; placeholder: string }> => {
+    const suggestions: Record<string, Array<{ key: string; placeholder: string }>> = {
+      legal_notice: [
+        { key: "sender_name", placeholder: "Sender Name" },
+        { key: "sender_address", placeholder: "Sender Address" },
+        { key: "recipient_name", placeholder: "Recipient Name" },
+        { key: "recipient_address", placeholder: "Recipient Address" },
+        { key: "subject_matter", placeholder: "Subject Matter" },
+        { key: "date", placeholder: "Date (DD/MM/YYYY)" }
+      ],
+      rent_agreement: [
+        { key: "landlord_name", placeholder: "Landlord Name" },
+        { key: "tenant_name", placeholder: "Tenant Name" },
+        { key: "property_address", placeholder: "Property Address" },
+        { key: "rent_amount", placeholder: "Monthly Rent (INR)" },
+        { key: "security_deposit", placeholder: "Security Deposit (INR)" },
+        { key: "lease_period", placeholder: "Lease Period (months)" },
+        { key: "start_date", placeholder: "Start Date (DD/MM/YYYY)" }
+      ],
+      affidavit: [
+        { key: "deponent_name", placeholder: "Deponent Name" },
+        { key: "deponent_age", placeholder: "Age" },
+        { key: "deponent_address", placeholder: "Address" },
+        { key: "purpose", placeholder: "Purpose of Affidavit" },
+        { key: "date", placeholder: "Date (DD/MM/YYYY)" }
+      ],
+      partnership_deed: [
+        { key: "partnership_name", placeholder: "Partnership Firm Name" },
+        { key: "partner1_name", placeholder: "Partner 1 Name" },
+        { key: "partner2_name", placeholder: "Partner 2 Name" },
+        { key: "business_nature", placeholder: "Nature of Business" },
+        { key: "capital_contribution", placeholder: "Capital Contribution" },
+        { key: "profit_sharing", placeholder: "Profit Sharing Ratio" },
+        { key: "start_date", placeholder: "Start Date (DD/MM/YYYY)" }
+      ]
+    }
+    return suggestions[template] || [
+      { key: "party_name", placeholder: "Party Name" },
+      { key: "date", placeholder: "Date (DD/MM/YYYY)" }
+    ]
+  }
+
   const [fields, setFields] = useState<Array<{ key: string; value: string }>>([
     { key: "party_name", value: "" },
     { key: "date", value: "" }
@@ -165,16 +208,16 @@ export default function DraftGenPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-background transition-colors duration-300">
       <Navigation />
 
       <main className="flex-1 px-4 py-10 md:px-6 lg:py-16">
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
               <span className="gradient-text-glow">DraftGen</span> - Legal Document Generator
             </h1>
-            <p className="mt-4 text-lg text-white/70">
+            <p className="mt-4 text-lg text-muted-foreground">
               Generate professional legal documents from templates with AI assistance
             </p>
           </div>
@@ -183,12 +226,17 @@ export default function DraftGenPage() {
             {/* Left Panel - Template Selection & Fields */}
             <div className="space-y-6 animate-fade-in-up stagger-1">
               {/* Template Selection */}
-              <div className="liquid rounded-2xl p-6 border border-white/10">
-                <label className="text-sm font-semibold mb-3 block text-white/90">Select Template</label>
+              <div className="liquid rounded-2xl p-6 border border-border">
+                <label className="text-sm font-semibold mb-3 block text-foreground">Select Template</label>
                 <select
                   value={selectedTemplate}
-                  onChange={(e) => setSelectedTemplate(e.target.value)}
-                  className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/30 transition-all"
+                  onChange={(e) => {
+                    setSelectedTemplate(e.target.value)
+                    // Update fields based on template
+                    const suggestions = getFieldSuggestions(e.target.value)
+                    setFields(suggestions.map(s => ({ key: s.key, value: "" })))
+                  }}
+                  className="w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all"
                 >
                   {Object.entries(TEMPLATES).map(([key, name]) => (
                     <option key={key} value={key}>{name}</option>
@@ -197,9 +245,9 @@ export default function DraftGenPage() {
               </div>
 
               {/* Fields */}
-              <div className="liquid rounded-2xl p-6 border border-white/10">
+              <div className="liquid rounded-2xl p-6 border border-border">
                 <div className="flex items-center justify-between mb-4">
-                  <label className="text-sm font-semibold text-white">Document Fields</label>
+                  <label className="text-sm font-semibold text-foreground">Document Fields</label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -211,46 +259,61 @@ export default function DraftGenPage() {
                   </Button>
                 </div>
                 <div className="space-y-3">
-                  {fields.map((field, index) => (
-                    <div key={index} className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Field name (e.g., party_name)"
-                        value={field.key}
-                        onChange={(e) => handleFieldChange(index, e.target.value, field.value)}
-                        className="flex-1 rounded-lg border border-primary/20 bg-background/50 px-3 py-2 liquid-subtle"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Value"
-                        value={field.value}
-                        onChange={(e) => handleFieldChange(index, field.key, e.target.value)}
-                        className="flex-1 rounded-lg border border-primary/20 bg-background/50 px-3 py-2 liquid-subtle"
-                      />
-                      {fields.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveField(index)}
-                          className="liquid-subtle"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                  {fields.map((field, index) => {
+                    const suggestions = getFieldSuggestions(selectedTemplate)
+                    const suggestion = suggestions.find(s => s.key === field.key)
+                    return (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder={suggestion?.placeholder || "Field name (e.g., party_name)"}
+                          value={field.key}
+                          onChange={(e) => handleFieldChange(index, e.target.value, field.value)}
+                          className="flex-1 rounded-lg border border-input bg-background/50 px-3 py-2 liquid-subtle text-foreground placeholder:text-muted-foreground"
+                          list={`field-suggestions-${index}`}
+                        />
+                        <datalist id={`field-suggestions-${index}`}>
+                          {suggestions.map((s, i) => (
+                            <option key={i} value={s.key}>{s.placeholder}</option>
+                          ))}
+                        </datalist>
+                        <input
+                          type="text"
+                          placeholder={suggestion?.placeholder || "Value"}
+                          value={field.value}
+                          onChange={(e) => handleFieldChange(index, field.key, e.target.value)}
+                          className="flex-1 rounded-lg border border-input bg-background/50 px-3 py-2 liquid-subtle text-foreground placeholder:text-muted-foreground"
+                        />
+                        {fields.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveField(index)}
+                            className="liquid-subtle"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
               <Button
                 onClick={handleGenerate}
-                disabled={isLoading}
-                className="w-full liquid-glow"
+                disabled={isLoading || fields.every(f => !f.key || !f.value)}
+                className="w-full liquid-glow text-primary-foreground font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 size="lg"
               >
                 <FileText className="mr-2 h-5 w-5" />
-                {isLoading ? "Generating..." : "Generate Document"}
+                {isLoading ? "Generating with AI..." : "Generate Document"}
               </Button>
+              {fields.every(f => !f.key || !f.value) && (
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Please fill in at least one field to generate the document
+                </p>
+              )}
             </div>
 
             {/* Right Panel - Generated Document */}
@@ -291,7 +354,7 @@ export default function DraftGenPage() {
                   value={generatedDocument}
                   readOnly
                   placeholder="Generated document will appear here..."
-                  className="w-full min-h-[500px] rounded-lg border border-primary/20 bg-background/50 px-4 py-3 liquid-subtle resize-none focus:outline-none font-mono text-sm"
+                  className="w-full min-h-[500px] rounded-lg border border-input bg-background/50 px-4 py-3 liquid-subtle resize-none focus:outline-none font-mono text-sm text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>

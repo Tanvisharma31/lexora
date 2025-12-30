@@ -33,8 +33,25 @@ export function withAuth<T extends NextResponse | Response>(
 export function withAuthAndPermission<T extends NextResponse | Response>(
   permission: Permission,
   handler: (context: TenantContext, request: NextRequest) => Promise<T>
-): (request: NextRequest) => Promise<T | NextResponse> {
-  return async (request: NextRequest) => {
+): (request: NextRequest) => Promise<T | NextResponse>
+
+/**
+ * API route handler wrapper that enforces authentication and permission check (with route context)
+ * Supports dynamic route parameters
+ * Returns a Next.js route handler function
+ */
+export function withAuthAndPermission<T extends NextResponse | Response, P = any>(
+  permission: Permission,
+  handler: (context: TenantContext, request: NextRequest, routeContext: P) => Promise<T>
+): (request: NextRequest, routeContext: P) => Promise<T | NextResponse>
+
+// Implementation
+export function withAuthAndPermission<T extends NextResponse | Response, P = any>(
+  permission: Permission,
+  handler: ((context: TenantContext, request: NextRequest) => Promise<T>) | 
+           ((context: TenantContext, request: NextRequest, routeContext: P) => Promise<T>)
+): ((request: NextRequest, routeContext?: P) => Promise<T | NextResponse>) {
+  return async (request: NextRequest, routeContext?: P) => {
     try {
       const context = await getTenantContext()
       const user = await ensureTenant(context.user)
@@ -47,7 +64,20 @@ export function withAuthAndPermission<T extends NextResponse | Response>(
       }
       
       const updatedContext = { ...context, user }
-      return await handler(updatedContext, request)
+      
+      // Call handler with or without route context based on what's provided
+      if (routeContext !== undefined) {
+        return await (handler as (context: TenantContext, request: NextRequest, routeContext: P) => Promise<T>)(
+          updatedContext, 
+          request, 
+          routeContext
+        )
+      } else {
+        return await (handler as (context: TenantContext, request: NextRequest) => Promise<T>)(
+          updatedContext, 
+          request
+        )
+      }
     } catch (error) {
       console.error('Auth error:', error)
       return NextResponse.json(

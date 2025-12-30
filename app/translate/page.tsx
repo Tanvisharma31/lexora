@@ -193,7 +193,7 @@ export default function TranslatePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-background transition-colors duration-300">
       <Navigation />
 
       <main className="flex-1 px-4 py-10 md:px-6 lg:py-16">
@@ -202,7 +202,7 @@ export default function TranslatePage() {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
               <span className="gradient-text-glow">Multilingual Legal Translation</span>
             </h1>
-            <p className="mt-4 text-lg text-white/70">
+            <p className="mt-4 text-lg text-muted-foreground">
               Translate legal documents and PDFs between Indian languages with context preservation
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function TranslatePage() {
             <Button
               variant={pdfTranslationMode ? "default" : "ghost"}
               onClick={() => setPdfTranslationMode(true)}
-              className={pdfTranslationMode ? "hover:scale-105 active:scale-95 shadow-lg" : "hover:bg-white/10"}
+              className={pdfTranslationMode ? "hover:scale-105 active:scale-95 shadow-lg" : "hover:bg-accent hover:text-accent-foreground"}
             >
               <Upload className="h-4 w-4" />
               PDF Translation
@@ -222,11 +222,11 @@ export default function TranslatePage() {
           {/* Language Selectors */}
           <div className="mb-8 flex flex-col sm:flex-row items-end justify-center gap-5 animate-fade-in-up stagger-2">
             <div className="flex-1 w-full">
-              <label className="text-sm font-semibold mb-2 block text-white/90">Source Language</label>
+              <label className="text-sm font-semibold mb-2 block text-foreground">Source Language</label>
               <select
                 value={sourceLang}
                 onChange={(e) => setSourceLang(e.target.value)}
-                className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/30 transition-all backdrop-blur-sm"
+                className="w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all backdrop-blur-sm"
               >
                 {Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => (
                   <option key={code} value={code}>{name}</option>
@@ -244,11 +244,11 @@ export default function TranslatePage() {
             </Button>
 
             <div className="flex-1 w-full">
-              <label className="text-sm font-semibold mb-2 block text-white/90">Target Language</label>
+              <label className="text-sm font-semibold mb-2 block text-foreground">Target Language</label>
               <select
                 value={targetLang}
                 onChange={(e) => setTargetLang(e.target.value)}
-                className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/30 transition-all backdrop-blur-sm"
+                className="w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all backdrop-blur-sm"
               >
                 {Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => (
                   <option key={code} value={code}>{name}</option>

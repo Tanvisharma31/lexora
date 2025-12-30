@@ -17,12 +17,12 @@ export function SuggestionChips({ suggestions, onSelect, disabled }: SuggestionC
           onClick={() => onSelect(suggestion)}
           disabled={disabled}
           className={cn(
-            "rounded-full border border-white/20 bg-white/5 backdrop-blur-sm px-5 py-2.5 text-sm font-medium text-white/80",
-            "hover:bg-white/10 hover:border-white/30 hover:text-white hover:scale-105",
+            "rounded-full border border-border bg-secondary backdrop-blur-sm px-5 py-2.5 text-sm font-medium text-muted-foreground",
+            "hover:bg-secondary/80 hover:border-border/80 hover:text-foreground hover:scale-105",
             "active:scale-95 transition-all duration-300",
-            "focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
             "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
-            "shadow-sm hover:shadow-md hover:shadow-white/10",
+            "shadow-sm hover:shadow-md",
             "animate-fade-in-up",
             `stagger-${Math.min(index + 1, 5)}`
           )}

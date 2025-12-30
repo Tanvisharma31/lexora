@@ -18,12 +18,12 @@ interface SearchInputProps {
   onLLMToggle?: (enabled: boolean) => void
 }
 
-export function SearchInput({ 
-  value, 
-  onChange, 
-  onSubmit, 
-  onClear, 
-  isLoading, 
+export function SearchInput({
+  value,
+  onChange,
+  onSubmit,
+  onClear,
+  isLoading,
   disabled,
   enableLLM = false,
   onLLMToggle
@@ -38,8 +38,8 @@ export function SearchInput({
   return (
     <div className="liquid rounded-2xl p-3 liquid-hover animate-fade-in-up group">
       <div className="relative flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5 border border-white/10 transition-all group-hover:bg-white/10">
-          <Search className="h-5 w-5 text-white/60 transition-colors group-hover:text-white" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted border border-border transition-all group-hover:bg-muted/80">
+          <Search className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-foreground" />
         </div>
 
         <input
@@ -50,11 +50,11 @@ export function SearchInput({
           placeholder="Ask a legal question..."
           disabled={disabled || isLoading}
           className={cn(
-            "flex-1 bg-transparent text-base md:text-lg text-white placeholder:text-white/40",
+            "flex-1 bg-transparent text-base md:text-lg text-foreground placeholder:text-muted-foreground",
             "focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
             "py-3 transition-all duration-300",
-            "focus:placeholder:text-white/20",
-            "selection:bg-white/20 selection:text-white"
+            "focus:placeholder:text-muted-foreground/70",
+            "selection:bg-primary/20 selection:text-foreground"
           )}
           aria-label="Search query"
         />
@@ -62,7 +62,7 @@ export function SearchInput({
         {value && (
           <button
             onClick={onClear}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-110 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 hover:scale-110 active:scale-95"
             aria-label="Clear search"
           >
             <X className="h-4 w-4" />
@@ -71,10 +71,10 @@ export function SearchInput({
 
         {/* LLM Toggle */}
         {onLLMToggle && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-border backdrop-blur-sm hover:bg-muted/80 hover:border-border/80 transition-all duration-300">
             <Brain className={cn(
               "h-4 w-4 transition-colors",
-              enableLLM ? "text-white" : "text-white/40"
+              enableLLM ? "text-foreground" : "text-muted-foreground"
             )} />
             <Switch
               checked={enableLLM}
@@ -82,7 +82,7 @@ export function SearchInput({
               disabled={disabled || isLoading}
               aria-label="Enable AI-powered search"
             />
-            <span className="text-xs text-white/60 hidden sm:inline whitespace-nowrap font-medium">AI Mode</span>
+            <span className="text-xs text-muted-foreground hidden sm:inline whitespace-nowrap font-medium">AI Mode</span>
           </div>
         )}
 
@@ -93,15 +93,15 @@ export function SearchInput({
             "h-12 rounded-xl px-6 font-semibold",
             "transition-all duration-300",
             "hover:scale-105 active:scale-95",
-            "shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20",
+            "shadow-lg shadow-sm hover:shadow-xl hover:shadow-md",
             "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
             "flex items-center gap-2 relative overflow-hidden group",
-            enableLLM 
-              ? "bg-gradient-to-r from-white to-white/95 text-black" 
-              : "bg-white text-black hover:bg-white/95"
+            enableLLM
+              ? "bg-primary text-primary-foreground"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
         >
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-foreground/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
           {enableLLM ? (
             <>
               <Brain className="h-4 w-4 relative z-10" />

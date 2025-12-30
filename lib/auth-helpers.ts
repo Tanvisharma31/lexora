@@ -1,6 +1,5 @@
 import { getCurrentUser } from './auth'
-import { prisma } from './prisma'
-import type { User } from '@prisma/client'
+import { User } from './models'
 
 /**
  * Check if user needs to select a role
@@ -40,12 +39,28 @@ export async function needsRoleSelection(user?: User | null): Promise<boolean> {
 
 /**
  * Get user by Clerk ID (for use in middleware)
+ * Uses backend API instead of direct database access
  */
 export async function getUserByClerkId(clerkId: string): Promise<User | null> {
   try {
-    return await prisma.user.findUnique({
-      where: { clerkId: clerkId } as any,
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
+    
+    const response = await fetch(`${BACKEND_URL}/users/me`, {
+      method: "GET",
+      headers: {
+        "X-Clerk-User-Id": clerkId,
+        "Content-Type": "application/json"
+      }
     })
+
+    if (response.ok) {
+      return await response.json()
+    } else if (response.status === 404) {
+      return null
+    } else {
+      console.error('Error fetching user by Clerk ID:', response.status, await response.text())
+      return null
+    }
   } catch (error) {
     console.error('Error fetching user by Clerk ID:', error)
     return null

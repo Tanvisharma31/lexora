@@ -152,12 +152,54 @@ export async function POST(req: Request) {
     if (eventType === 'user.deleted') {
       const { id } = evt.data
       console.log('Webhook: Deleting user:', id)
-      // TODO: Implement delete user in backend
-      // For now we just acknowledge
-      return NextResponse.json(
-        { message: 'User deletion acknowledged (not implemented)' },
-        { status: 200 }
-      )
+      
+      try {
+        // Call backend to delete user
+        const response = await fetch(`${BACKEND_URL}/users/${id}`, {
+          method: 'DELETE',
+          headers: new Headers({
+            'Content-Type': 'application/json',
+            'X-Clerk-User-Id': id, // User deleting themselves
+          } as HeadersInit),
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Webhook: Error deleting user from backend:', {
+            status: response.status,
+            error: errorText,
+          })
+          // Still return 200 to acknowledge webhook, but log error
+          return NextResponse.json(
+            { 
+              message: 'User deletion webhook received, but backend deletion failed',
+              error: errorText,
+            },
+            { status: 200 }
+          )
+        }
+
+        const result = await response.json()
+        console.log('Webhook: User deleted successfully:', result)
+        
+        return NextResponse.json(
+          { 
+            message: 'User deleted successfully',
+            userId: result.user_id,
+          },
+          { status: 200 }
+        )
+      } catch (error) {
+        console.error('Webhook: Error calling backend delete endpoint:', error)
+        // Still acknowledge webhook to prevent retries
+        return NextResponse.json(
+          { 
+            message: 'User deletion webhook received, but backend call failed',
+            error: error instanceof Error ? error.message : String(error),
+          },
+          { status: 200 }
+        )
+      }
     }
 
     // Handle session events - enforce single session per user

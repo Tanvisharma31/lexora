@@ -64,11 +64,11 @@ export function LegalSearch() {
     try {
       // Use /llm-search if LLM is enabled, otherwise use /search
       const endpoint = enableLLM ? "/api/llm-search" : "/api/search"
-      
+
       // For LLM search, check rate limit first
       if (enableLLM) {
         const limiter = getRateLimiter()
-        
+
         if (!limiter.canMakeRequest()) {
           const waitTime = limiter.getSecondsUntilNextToken()
           toast.error(`Rate limit exceeded`, {
@@ -91,22 +91,22 @@ export function LegalSearch() {
           setTokensRemaining(limiter.getTokensRemaining())
           return
         }
-        
+
         setTokensRemaining(limiter.getTokensRemaining())
       }
 
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          query: query.trim(), 
-          top_k: enableLLM ? 5 : 10 
+        body: JSON.stringify({
+          query: query.trim(),
+          top_k: enableLLM ? 5 : 10
         }),
       })
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: "Request failed" }))
-        
+
         if (res.status === 403 && errorData.trial_expired) {
           // Show trial expired modal
           setTrialService(errorData.service || "search")
@@ -114,7 +114,7 @@ export function LegalSearch() {
           setIsLoading(false)
           return
         }
-        
+
         if (res.status === 429) {
           toast.error("Rate limit exceeded", {
             description: errorData.message || "Too many requests. Please try again later.",
@@ -131,7 +131,7 @@ export function LegalSearch() {
 
       const data: SearchResponse = await res.json()
       setResponse(data)
-      
+
       // Update tokens if returned from LLM search
       if (typeof data.tokensRemaining === "number") {
         setTokensRemaining(data.tokensRemaining)
@@ -188,7 +188,7 @@ export function LegalSearch() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex min-h-screen flex-col bg-black">
+      <div className="flex min-h-screen flex-col bg-background">
 
         {/* Landing Page Content */}
         <main className="flex-1 px-4 py-12 md:px-6 lg:py-20">
@@ -198,19 +198,19 @@ export function LegalSearch() {
               <div className="space-y-8 animate-fade-in-up">
                 <div className="inline-flex items-center gap-2 rounded-full liquid-subtle px-5 py-2.5 text-sm border border-white/20 shadow-lg shadow-white/5">
                   <Sparkles className="h-4 w-4 text-white" />
-                  <span className="text-white font-semibold">AI-Powered Legal Search</span>
+                  <span className="text-foreground font-semibold">AI-Powered Legal Search</span>
                 </div>
-                
-                <h1 className="text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl text-balance leading-tight">
+
+                <h1 className="text-5xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance leading-tight">
                   Find Legal Answers
                   <br />
                   <span className="gradient-text-glow">
                     Instantly
                   </span>
                 </h1>
-                
-                <p className="mx-auto max-w-2xl text-xl text-white/70 md:text-2xl leading-relaxed">
-                  Search through Indian laws, acts, and legal precedents. Get AI-powered answers 
+
+                <p className="mx-auto max-w-2xl text-xl text-muted-foreground md:text-2xl leading-relaxed">
+                  Search through Indian laws, acts, and legal precedents. Get AI-powered answers
                   to your legal questions with citations and sources.
                 </p>
 
@@ -231,7 +231,7 @@ export function LegalSearch() {
                     size="lg"
                     onClick={() => router.push("/sign-in")}
                     className="liquid-subtle text-lg px-8 py-6 h-auto font-medium border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:shadow-lg transition-all duration-300 group backdrop-blur-sm relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
+                  >
                     <span className="flex items-center gap-2 relative z-10">
                       Sign In
                       <LogIn className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -247,8 +247,8 @@ export function LegalSearch() {
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 mb-6 border border-white/20 shadow-lg shadow-white/5 group-hover:scale-110 transition-transform">
                     <Scale className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">Comprehensive Search</h3>
-                  <p className="text-white/70 leading-relaxed">
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Comprehensive Search</h3>
+                  <p className="text-muted-foreground leading-relaxed">
                     Search across High Court judgements, Central Code, and State Acts all in one place.
                   </p>
                 </div>
@@ -257,8 +257,8 @@ export function LegalSearch() {
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 mb-6 border border-white/20 shadow-lg shadow-white/5 group-hover:scale-110 transition-transform">
                     <Sparkles className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">AI-Powered Answers</h3>
-                  <p className="text-white/70 leading-relaxed">
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">AI-Powered Answers</h3>
+                  <p className="text-muted-foreground leading-relaxed">
                     Get intelligent answers with citations and source documents for every query.
                   </p>
                 </div>
@@ -267,8 +267,8 @@ export function LegalSearch() {
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 mb-6 border border-white/20 shadow-lg shadow-white/5 group-hover:scale-110 transition-transform">
                     <ArrowRight className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">Fast & Accurate</h3>
-                  <p className="text-white/70 leading-relaxed">
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Fast & Accurate</h3>
+                  <p className="text-muted-foreground leading-relaxed">
                     Get instant results with accurate legal information and proper citations.
                   </p>
                 </div>
@@ -278,13 +278,13 @@ export function LegalSearch() {
               <div className="mt-20 liquid rounded-2xl p-10 max-w-3xl mx-auto border border-white/20 shadow-premium animate-fade-in-up stagger-4">
                 <h2 className="text-3xl font-semibold mb-8 text-white text-center">Try it out</h2>
                 <div className="space-y-6">
-                  <SuggestionChips 
-                    suggestions={quickSuggestions} 
+                  <SuggestionChips
+                    suggestions={quickSuggestions}
                     onSelect={(q) => {
                       setQuery(q)
                       router.push("/sign-up")
-                    }} 
-                    disabled={false} 
+                    }}
+                    disabled={false}
                   />
                   <p className="text-sm text-white/60 text-center font-medium">
                     Sign up to start searching and get AI-powered legal answers
@@ -301,7 +301,7 @@ export function LegalSearch() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-background">
 
       <main className="flex-1 px-4 py-6 md:px-6 lg:py-10">
         <div className="mx-auto max-w-7xl">
@@ -320,17 +320,17 @@ export function LegalSearch() {
                 <div className="animate-fade-in-up">
                   <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                     <div className="text-center lg:text-left space-y-4">
-                      <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl text-balance gradient-text-glow">
+                      <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl text-balance gradient-text-glow">
                         Ask Nyayik
                       </h1>
-                      <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                      <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                         Get instant answers from Indian laws, acts, and legal precedents. Powered by advanced AI to help you
                         understand legal matters.
                       </p>
                     </div>
                     <div className="flex justify-center lg:justify-end items-center gap-4 mt-6 lg:mt-0">
                       <QuotaIndicator tokensRemaining={tokensRemaining} maxTokens={maxTokens} />
-                      <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white liquid-subtle border border-white/20 shadow-lg shadow-white/5 hover:bg-white/15 transition-all">
+                      <div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-semibold text-foreground liquid-subtle border border-border shadow-lg shadow-sm hover:bg-secondary/80 transition-all">
                         <Sparkles className="h-3.5 w-3.5 text-white" />
                         <span className="text-white">Beta</span>
                       </div>
@@ -355,7 +355,7 @@ export function LegalSearch() {
               {!response && !isLoading && (
                 <div className="space-y-6 animate-fade-in-up stagger-2">
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-white/60">Quick suggestions:</p>
+                    <p className="text-sm font-medium text-muted-foreground">Quick suggestions:</p>
                     <SuggestionChips suggestions={quickSuggestions} onSelect={handleSelectQuery} disabled={isLoading} />
                   </div>
 

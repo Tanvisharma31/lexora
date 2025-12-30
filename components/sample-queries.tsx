@@ -13,8 +13,8 @@ interface SampleQueriesProps {
 export function SampleQueries({ onSelectQuery, disabled, className }: SampleQueriesProps) {
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
-        <MessageSquare className="h-4 w-4 text-white/60" />
+      <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+        <MessageSquare className="h-4 w-4 text-muted-foreground/70" />
         <span>Try asking</span>
       </div>
       <div className="space-y-2.5">
@@ -25,16 +25,16 @@ export function SampleQueries({ onSelectQuery, disabled, className }: SampleQuer
             disabled={disabled}
             className={cn(
               "liquid-subtle w-full rounded-xl px-5 py-3.5 text-left text-sm transition-all group",
-              "hover:bg-white/10 hover:border-white/30 hover:shadow-lg hover:shadow-white/5 hover:translate-x-1",
+              "hover:bg-secondary/20 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:translate-x-1",
               "active:scale-[0.98]",
-              "focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black",
+              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0",
-              "border border-white/10",
+              "border border-border",
               "animate-fade-in-up",
             )}
             style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <span className="text-white/90 group-hover:text-white font-medium transition-colors">{query}</span>
+            <span className="text-foreground/90 group-hover:text-foreground font-medium transition-colors">{query}</span>
           </button>
         ))}
       </div>

@@ -49,7 +49,7 @@ export function LandingCTA() {
               onClick={() => router.push(isSignedIn ? "/" : "/sign-up")}
               className="group liquid-glow px-10 py-7 text-lg font-semibold text-black hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/20"
             >
-              <span className="flex items-center gap-2 text-white">
+              <span className="flex items-center gap-2">
                 Start Free Trial
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </span>

@@ -3,7 +3,7 @@
  * Based on Lexora's comprehensive role-based access control system
  */
 
-import { UserRole, Permission } from './models'
+import { UserRole } from './models'
 import { hasPermission } from './rbac'
 import type { User } from './models'
 
